@@ -1,0 +1,83 @@
+h1{
+  font-family: "Carattere", cursive;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 65px;
+}
+
+h5{
+    font-family: "B612", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 15px;
+}
+
+h6{
+    font-family: "B612", sans-serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 15px;
+}
+
+.h7{
+    font-family: "B612", sans-serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 13px;
+}
+
+.nav-item{
+    padding-left: 50px;
+}
+
+.rounded{
+    size:10%
+}
+.header img {
+    vertical-align: middle;
+    margin-right: 15px;
+}
+
+.login-container {
+    background-color: #008cc9;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.login-container h2 {
+    color: white;
+}
+
+.login-container input {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 15px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.login-container button {
+    padding: 10px 20px;
+    background-color: #006699;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.login-container a {
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.login-container .links a {
+    color: white;
+    text-decoration: none;
+    font-size: 12px;
+}

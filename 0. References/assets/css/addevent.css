@@ -1,0 +1,58 @@
+#Add_Event_Form{
+    text-align: center;
+    top:0;
+    margin: 90px 200px 0px 200px;
+    background-color: inherit;
+}
+
+.Admin_Event_Title, .Admin_Event_Venue{
+    width: 300px;
+    height: 30px;
+    
+}
+.Admin_Event_Quantity{
+    width: 75px;
+    height: 20px;
+}
+.Upload{
+    margin-bottom: 80px;
+}
+
+.cancel{
+    padding: 19px;
+    background-color:inherit;
+    margin-top: 80px;
+}
+.cancel a{
+    color: white;
+    text-decoration:none;
+}
+
+.ContinuForm{
+    margin-top: 10px;
+    margin-left: 700px;
+}
+
+.cancelButton[type=button]{
+    border-radius: 25px;
+    background-color:#5C5CAD;
+    color: white;
+    border:none;
+    margin: 0px 740px 0px 0px;
+}
+.cancelButton[type=button]:hover{
+    background-color: buttonface;
+    border:1px solid black;
+    color: grey;
+}
+
+#reset,#submit{
+    background-color: inherit;
+    color: black;
+}
+
+#reset:hover,#submit:hover{
+    background-color: #bdd9de;
+    /*border:1px solid white;*/
+    color: black;
+}

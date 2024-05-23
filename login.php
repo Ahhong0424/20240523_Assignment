@@ -1,90 +1,80 @@
 <?php
 session_start();
-$host = 'localhost'; // Your database host
-$db = 'may'; // Your database name
-$user = 'root'; // Your database user
-$pass = ''; // Your database password
+include 'configurations/dbconfig.php';
 
 // Check if form is submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Create connection
-    $conn = new mysqli($host, $user, $pass, $db);
-
-    // Check connection
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
     // Function to register a new user
     function register($conn, $firstName, $lastName, $email, $password, $confirm_password) {
-    if ($password !== $confirm_password) {
-        return "Passwords do not match!";
+        if ($password !== $confirm_password) {
+            return "Passwords do not match!";
+        }
+
+        $password_hash = password_hash($password, PASSWORD_DEFAULT);
+        $role = 'user'; // Default role
+
+        // SQL query to insert user data
+        $sql = "INSERT INTO users (firstName, lastName, email, password, role) VALUES (?, ?, ?, ?, ?)";
+
+        // Prepare and bind parameters
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sssss", $firstName, $lastName, $email, $password_hash, $role);
+
+        if ($stmt->execute()) {
+            return "Registration successful!";
+        } else {
+            return "Error: " . $sql . "<br>" . $conn->error;
+        }
     }
 
-    //$password_hash = password_hash($password, PASSWORD_DEFAULT);
-    $role = 'users'; // Default role
+    // Function to login a user
+    function login($conn, $email, $password) {
+        $sql = "SELECT * FROM users WHERE email = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-    // SQL query to insert user data
-    $sql = "INSERT INTO users (firstName, lastName, email, password, role) VALUES (?, ?, ?, ?, ?)";
-
-    // Prepare and bind parameters
-    $stmt = $conn->prepare($sql);
-    //$stmt->bind_param("sssss", $firstName, $lastName, $email, $password_hash, $role);
-    $stmt->bind_param("sssss", $firstName, $lastName, $email, $password, $role);
-
-    if ($stmt->execute()) {
-        return "Registration successful!";
-    } else {
-        return "Error: " . $sql . "<br>" . $conn->error;
-    }
-}
-
-// Function to login a user
-function login($conn, $email, $password) {
-    $sql = "SELECT * FROM users WHERE email = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
-        if ($password == $user['password']) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['role'] = $user['role'];
-            if ($user['role'] == 'admin') {
-                header("Location: adminIndex.php");
-                exit;
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            if ($password == $user['password']) {
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_last_name'] = $user['lastName'];
+                $_SESSION['role'] = $user['role'];
+                $_SESSION['email'] = $user['email'];
+                if ($user['role'] == 'admin') {
+                    header("Location: adminIndex.php");
+                    exit;
+                } else {
+                    header("Location: index.php");
+                    exit;
+                }
             } else {
-                header("Location: index.php");
-                exit;
+                return "Incorrect password!";
             }
         } else {
-            return "Incorrect password! " . $password . " " . $user['password'];
+            return "No user found with that email address!";
         }
-    } else {
-        return "No user found with that email address!";
-    }
-}
-
-// Function to reset password
-function reset_password($conn, $email, $new_password, $confirm_new_password) {
-    if ($new_password !== $confirm_new_password) {
-        return "Passwords do not match!";
     }
 
-    //$password_hash = password_hash($new_password, PASSWORD_DEFAULT);
-    $sql = "UPDATE users SET password = ? WHERE email = ?";
+    // Function to reset password
+    function reset_password($conn, $email, $new_password, $confirm_new_password) {
+        if ($new_password !== $confirm_new_password) {
+            return "Passwords do not match!";
+        }
 
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ss", $new_password, $email);
+        $password_hash = password_hash($new_password, PASSWORD_DEFAULT);
+        $sql = "UPDATE users SET password = ? WHERE email = ?";
 
-    if ($stmt->execute()) {
-        return "Password reset successful!";
-    } else {
-        return "Error: " . $sql . "<br>" . $conn->error;
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ss", $password_hash, $email);
+
+        if ($stmt->execute()) {
+            return "Password reset successful!";
+        } else {
+            return "Error: " . $sql . "<br>" . $conn->error;
+        }
     }
-}
 
     // Check which form was submitted
     if (isset($_POST['register'])) {
@@ -145,7 +135,6 @@ function reset_password($conn, $email, $new_password, $confirm_new_password) {
                 <button type="submit" name="reset_password">Reset Password</button>
             </form>
         </div>
-
     </div>
 
     <script>

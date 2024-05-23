@@ -1,200 +1,153 @@
 <?php
-echo '
-<!DOCTYPE html <html>
+session_start();
 
-<head>
+// Check if the user is logged in with the 'users' role
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'users') {
+    // Redirect to login.php if not logged in with the 'users' role
+    header("Location: login.php");
+    exit();
+}
 
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description"
-    content="Vets for Pets Animal Clinic (VPAC) is a well-established, full service, small animal and exotic veterinary clinic providing comprehensive preventive, medical, surgical and dental care.
-    We provide a broad spectrum of diagnostic procedures through in-house testing and the use of external laboratories. We also work closely with local practices when special diagnostic procedures are required. The facility includes a well-stocked pharmacy, in-house surgery suite, in-house x-ray capabilities, a closely supervised hospitalization area, and indoor boarding kennels with outdoor walking areas.
-    We understand that your pets are a part of your family. Thus, we treat each patient with the same love and gentle handling that we would expect for our own ‘kids’. ">
-  <meta name="keywords" content="animal clinic, pets clinic, veterinary, vets for pets animal clinic, vpac, VPAC">
-  <meta name="author" content="Desmond Lin Wai Kin">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <link rel="stylesheet" href="css/Style.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Carattere&display=swap" rel="stylesheet">
-</head>
+// Include database configuration
+include 'configurations/dbconfig.php';
 
-<body>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-    crossorigin="anonymous"></script>
-  <div class="container-fluid">
-    <nav class="navbar navbar-expand-lg" style="background-color: #D9FDFF;">
-      <div class="container-fluid">
-        <img src="Image/WebLogo.png" alt="">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="index.php">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="aboutUs.php">About Us</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="petsInfo.php">Pets Info</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="community.php">Community</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="donation.php">Donation</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="adopt.php">Adopt</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="news.php">News</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="profile.php">Profile</a>
-            </li>
-            
-          </ul>
+// Define variables and initialize with empty values
+$full_name = $phone_number = $userMessage = '';
+$file_path = null;
+$responseMessage = ''; // This variable will store the feedback message for the user
 
-        </div>
-      </div>
+// Process form submission
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $responseMessage = createDonation($conn, $_POST, $_SESSION);
+}
 
-    </nav>
+// Close database connection
+$conn->close();
 
-    <br>
-    <div class="container-fluid text-center">
-      <h1>Donation</h1>
-    </div>
-    <br>
-    <div class="container-fluid" style="padding: 100px; background-color:#D9FDFF;">
-      <div class="container-fluid" style="padding:50px ; border-radius: 10px; background-color: #1985B6;">
-        <form class="row g-3">
-          <div class="col-md-6">
-            <label for="inputFristName4" class="form-label">First Name</label>
-            <input type="text" class="form-control" id="inputFristName4">
-          </div>
-          <div class="col-md-6">
-            <label for="inputLastName4" class="form-label">Last Name</label>
-            <input type="text" class="form-control" id="inputLastName4">
-          </div>
-          <div class="col-12">
-            <label for="inputEmail" class="form-label">Email</label>
-            <input type="email" class="form-control" id="inputemail" placeholder="Type Your Email Here....">
-          </div>
-          <div class="col-12">
-            <label for="inputPhoneNumber" class="form-label">Phone Number</label>
-            <input type="text" class="form-control" id="inputPhone Number"
-              placeholder="Type Your Phone Number Here....">
-          </div>
-          <div class="col-12">
-            <label for="Textarea" class="form-label">Message to us</label>
-            <textarea class="form-control" id="Textarea" rows="5" placeholder="Type Your Message Here...."></textarea>
-          </div>
-          <div class="col-12">
-            <h5 style="font-size: 32px; color: white;">Qr Payment</h5>
-          </div>
-          <div class="col-12 text-center" style="max-width: 100%; max-height: 100%;">
-            <img src="Image/QrPayment.png" alt="">
-          </div>
-          <div>
-            Line
-          </div>
-          <div class="col-12">
-            <h5 style="font-size: 32px; color: white;">Card Payment</h5>
-          </div>
-          <div class="col-12">
-            <label for="inputCardHolderName" class="form-label">Card Holder Name</label>
-            <input type="text" class="form-control" id="inputcardnumbername" placeholder="Card Holder Name....">
-          </div>
-          <div class="col-12">
-            <label for="inputCardNumber" class="form-label">Card Number</label>
-            <input type="text" class="form-control" id="inputcardnumber" placeholder="Card Number....">
-          </div>
-          <div class="col-md-6">
-            <label for="inputExpiry" class="form-label">Expiry</label>
-            <input type="text" class="form-control" id="inputExpiry">
-          </div>
-          <div class="col-md-6">
-            <label for="inputSecurityNumber" class="form-label">Security Number</label>
-            <input type="text" class="form-control" id="inputSecurityNumber">
-          </div>
-          <div class="col-12">
-            <label for="inputAmount" class="form-label">Ringgit Malaysia (RM)</label>
-            <input type="amount" class="form-control" id="inputamount" placeholder="RM">
-          </div>
+// Function to handle file upload
+function uploadFile($file) {
+    if (isset($file['name']) && !empty($file['name'])) {
+        $targetDir = "uploads/";
+        $targetFile = $targetDir . basename($file["name"]);
+        $fileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
 
-          <div class="col-12 text-center">
-            <button type="submit" class="btn btn-primary">Sign in</button>
-          </div>
-        </form>
+        // Check file size (limit to 5MB)
+        if ($file["size"] > 5000000) {
+            return ["status" => 0, "message" => "Sorry, your file is too large."];
+        }
 
-      </div>
+        // Allow certain file formats
+        $allowedTypes = ["jpg", "png", "jpeg", "gif", "pdf"];
+        if (!in_array($fileType, $allowedTypes)) {
+            return ["status" => 0, "message" => "Sorry, only JPG, JPEG, PNG, GIF, & PDF files are allowed."];
+        }
 
-    </div>
+        // Attempt to move the uploaded file to the server
+        if (move_uploaded_file($file["tmp_name"], $targetFile)) {
+            return ["status" => 1, "file_path" => $targetFile];
+        } else {
+            return ["status" => 0, "message" => "Sorry, there was an error uploading your file."];
+        }
+    } else {
+        return ["status" => 0, "message" => "No file uploaded."];
+    }
+}
 
-    <br>
-    <br>
-    <div class="container-fluid text-start" style="background-color: #D9FDFF;">
-      <div class="row">
-        <div class="col">
-          <h5>ADDRESS</h5>
-          <h7>Jalan 123,Taman 123,Kuala Lumpur</h7>
+// Function to insert donation records into the database
+function createDonation($conn, $postData, $sessionData) {
+    $file_path = null;
+    $userMessage = trim($postData['message']); // This is the message from the form
 
-          <h5>EMAIL</h5>
-          <h7>MYPET123@COMPANY.COM</h7>
+    // Validate input
+    $full_name = trim($postData['full_name']);
+    $phone_number = trim($postData['phone_number']);
+    $email = isset($sessionData['email']) ? $sessionData['email'] : '';
 
-          <h5>H/P</h5>
-          <h7>012-3451236</h7>
+    // File upload handling
+    if (isset($_FILES['file_upload']) && $_FILES['file_upload']['error'] === UPLOAD_ERR_OK) {
+        $uploadResult = uploadFile($_FILES['file_upload']);
+        if ($uploadResult['status'] === 1) {
+            $file_path = $uploadResult['file_path'];
+        } else {
+            return $uploadResult['message']; // Feedback if file upload fails
+        }
+    }
 
-        </div>
-        <div class="col text-center">
-          <a class="Link-dark link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-            href="#">
-            <h6>ABOUT US</h6>
-          </a>
+    // Prepare and bind the SQL statement
+    $sql = "INSERT INTO donation (Full_name, email, phone_number, message, file_path) VALUES (?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssss", $full_name, $email, $phone_number, $userMessage, $file_path);
 
-          <a class="Link-dark link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-            href="#">
-            <h6>PETS INFO</h6>
-          </a>
+    // Execute the statement
+    if ($stmt->execute()) {
+        return 'Donation submitted successfully.';
+    } else {
+        return 'Error: ' . $stmt->error;
+    }
 
-          <a class="Link-dark link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-            href="#">
-            <h6>COMMUNITY</h6>
-          </a>
-
-          <a class="Link-dark link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-            href="#">
-            <h6>DONATION</h6>
-          </a>
-
-          <a class="Link-dark link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-            href="#">
-            <h6>ADOPT</h6>
-          </a>
-
-          <a class="Link-dark link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-            href="#">
-            <h6>NEWS</h6>
-          </a>
-        </div>
-        <div class="col text-end">
-          <img src="Image/MasterCard.png" alt="">
-          <img src="Image/VisaCard.png" alt="">
-          <form class="d-flex" role="search">
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success" type="submit">Search</button>
-          </form>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</body>
-';
+    // Close the statement
+    $stmt->close();
+}
 ?>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation</title>
+    <link rel="stylesheet" href="css/Stylesheet.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        form {
+            width: 50%;
+        }
+    </style>
+</head>
+<body>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <div class="container-fluid">
+        
+        <?php include 'assets/header.php'; ?>
+
+        <br>
+        <div class="container">
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST" enctype="multipart/form-data" id="donationForm">
+                <div class="container-fluid">
+                    <h1 style="text-align: center;">Donation</h1>
+                </div>
+
+                <!-- Display the response message here -->
+                <?php if (!empty($responseMessage)) echo "<p>$responseMessage</p>"; ?>
+
+                <label for="full_name">Full Name:</label><br>
+                <input type="text" id="full_name" name="full_name" required value="<?php echo htmlspecialchars($full_name); ?>"><br><br>
+
+                <label for="phone_number">Phone Number:</label><br>
+                <input type="tel" id="phone_number" name="phone_number" required value="<?php echo htmlspecialchars($phone_number); ?>"><br><br>
+
+                <label for="message">Message:</label><br>
+                <textarea id="message" name="message" rows="4" required><?php echo htmlspecialchars($userMessage); ?></textarea><br><br>
+
+                <label for="file_upload">File Upload:</label><br>
+                <input type="file" id="file_upload" name="file_upload"><br><br>
+
+                <button type="submit" name="createDonation" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+        <br>
+
+        <?php include 'assets/footer.php'; ?>
+    </div>
+</body>
+</html>

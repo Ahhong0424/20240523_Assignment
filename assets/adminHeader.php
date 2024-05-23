@@ -28,32 +28,20 @@ if (session_status() == PHP_SESSION_NONE) {
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="index.php">Home</a>
+                        <a class="nav-link active" aria-current="page" href="adminIndex.php">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="aboutUs.php">About Us</a>
+                        <a class="nav-link active" aria-current="page" href="adminPetsInfo.php">Manage Pets Info</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="petsInfo.php">Pets Info</a>
+                        <a class="nav-link active" aria-current="page" href="adminAdoption.php">Manage Adoption</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="community.php">Community</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="donation.php">Donation</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="adopt.php">Adopt</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="news.php">News</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="profile.php">Profile</a>
+                        <a class="nav-link active" aria-current="page" href="adminNews.php">Manage News</a>
                     </li>
                     <?php if(isset($_SESSION['user_last_name'])): ?>
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="profile.php">Welcome, <?php echo htmlspecialchars($_SESSION['user_last_name']); ?>!</a>
+                            <a class="nav-link active" aria-current="page" href="adminProfile.php">Welcome, <?php echo htmlspecialchars($_SESSION['user_last_name']); ?>!</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="logout.php">Logout</a>

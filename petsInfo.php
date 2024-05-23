@@ -1,5 +1,37 @@
 <?php
-echo '
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+include 'configurations/dbconfig.php';
+
+// Initialize $message
+$message = '';
+
+// Pagination logic
+$limit = 10; // Number of news items per page
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+// Fetch total number of news records
+$sqlTotal = "SELECT COUNT(*) AS total FROM news";
+$resultTotal = $conn->query($sqlTotal);
+$totalRecords = $resultTotal->fetch_assoc()['total'];
+$totalPages = ceil($totalRecords / $limit);
+
+// Fetch news records for the current page
+$sql = "SELECT * FROM petsinfo LIMIT $limit OFFSET $offset";
+$result = $conn->query($sql);
+$petsList = $result->fetch_all(MYSQLI_ASSOC);
+
+// JavaScript for alert message
+echo '<script>';
+if ($message) {
+    echo 'alert("' . $message . '");';
+}
+echo '</script>';
+?>
+
 <!DOCTYPE html <html>
 
 <head>
@@ -25,152 +57,56 @@ echo '
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
     crossorigin="anonymous"></script>
   <div class="container-fluid">
-    <nav class="navbar navbar-expand-lg" style="background-color: #D9FDFF;">
-      <div class="container-fluid">
-        <img src="Image/WebLogo.png" alt="">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="index.php">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="aboutUs.php">About Us</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="petsInfo.php">Pets Info</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="community.php">Community</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="donation.php">Donation</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="adopt.php">Adopt</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="news.php">News</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="profile.php">Profile</a>
-            </li>
-            
-          </ul>
+    
+    <?php include 'assets/header.php'; ?>
 
-        </div>
-      </div>
-
-    </nav>
-    <br>
     <div class="container-fluid text-center">
       <h1>Pets Info</h1>
     </div>
     <br>
+    <?php foreach ($petsList as $pet): ?>
     <div class="row row-cols-1 row-cols-md-3 g-4">
-      <div class="col">
-        <div class="card h-100">
-          <img src="Image/PetsInfo_1.png" class="card-img-top" alt="...">
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional
-              content. This content is a little bit longer.</p>
-          </div>
-          <div class="card-footer">
-            <small class="text-body-secondary">Last updated 3 mins ago</small>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card h-100">
-          <img src="Image/PetsInfo_2.png" class="card-img-top" alt="...">
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
-          </div>
-          <div class="card-footer">
-            <small class="text-body-secondary">Last updated 3 mins ago</small>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card h-100">
-          <img src="Image/PetsInfo_3.png" class="card-img-top" alt="...">
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional
-              content. This card has even longer content than the first to show that equal height action.</p>
-          </div>
-
-          
-          <div class="card-footer">
-            <small class="text-body-secondary">Last updated 3 mins ago</small>
-          </div>
-        </div>
-      </div>
-
+          <div class="col">
+            <div class="card h-100">
+              <img src="<?php echo htmlspecialchars($pet['file_path']); ?>" class="card-img-top" alt="...">
+              <div class="card-body">
+                <h4 class="card-title"><?php echo htmlspecialchars($pet['pet_title']); ?></h4>
+                <h5 class="card-title"><?php echo htmlspecialchars($pet['pet_category']); ?></h5>
+                <p class="card-text"><?php echo htmlspecialchars($pet['pet_description']); ?></p>
+              </div>
+              <div class="card-footer">
+                <small class="text-body-secondary">Last updated at <?php echo htmlspecialchars($pet['last_maintenance_timestamp']); ?></small>
+                <form action="adopt.php?pet_id=<?= $pet['id']; ?>" method="post" style="margin-top: 10px;">
+                <input type="hidden" name="pet_id" value="<?php echo htmlspecialchars($pet['id']); ?>">
+                <button type="submit" class="btn btn-primary">Adopt</button>
+              </form>
+              </div>
+            </div>
+         </div>
     </div>
-    <br>
-    <br>
-    <div class="container-fluid text-start" style="background-color: #D9FDFF;">
-      <div class="row">
-        <div class="col">
-          <h5>ADDRESS</h5>
-          <h7>Jalan 123,Taman 123,Kuala Lumpur</h7>
+    <?php endforeach; ?>
+    
+    <!-- Pagination controls -->
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                <?php if ($page > 1): ?>
+                    <li class="page-item"><a class="page-link" href="?page=<?php echo $page - 1; ?>">Previous</a></li>
+                <?php endif; ?>
 
-          <h5>EMAIL</h5>
-          <h7>MYPET123@COMPANY.COM</h7>
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <li class="page-item <?php if ($i == $page) echo 'active'; ?>">
+                        <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                    </li>
+                <?php endfor; ?>
 
-          <h5>H/P</h5>
-          <h7>012-3451236</h7>
+                <?php if ($page < $totalPages): ?>
+                    <li class="page-item"><a class="page-link" href="?page=<?php echo $page + 1; ?>">Next</a></li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+   
 
-        </div>
-        <div class="col text-center">
-          <a class="Link-dark link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-            href="#">
-            <h6>ABOUT US</h6>
-          </a>
-
-          <a class="Link-dark link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-            href="#">
-            <h6>PETS INFO</h6>
-          </a>
-
-          <a class="Link-dark link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-            href="#">
-            <h6>COMMUNITY</h6>
-          </a>
-
-          <a class="Link-dark link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-            href="#">
-            <h6>DONATION</h6>
-          </a>
-
-          <a class="Link-dark link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-            href="#">
-            <h6>ADOPT</h6>
-          </a>
-
-          <a class="Link-dark link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-            href="#">
-            <h6>NEWS</h6>
-          </a>
-        </div>
-        <div class="col text-end">
-          <img src="Image/MasterCard.png" alt="">
-          <img src="Image/VisaCard.png" alt="">
-          <form class="d-flex" role="search">
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success" type="submit">Search</button>
-          </form>
-        </div>
-      </div>
-    </div>
+    <?php include 'assets/footer.php'; ?>    
 
   </div>
 </body>
-';
-?>

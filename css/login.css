@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=B612:wght@400&family=Carattere&display=swap');
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-container {
+    background-color: #008cc9;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    text-align: center;
+    width: 400px;
+    margin: 20px 0; /* Added top and bottom margin */
+}
+
+    .login-container h2 {
+        color: white;
+        font-family: 'Carattere', cursive;
+        font-size: 40px;
+        margin-bottom: 20px;
+    }
+
+    .login-container input {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        margin: 15px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .login-container button {
+        padding: 10px 20px;
+        background-color: #006699;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 10px; /* Added margin-top for spacing */
+    }
+
+    .login-container a {
+        color: white;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 10px;
+    }
+
+    .login-container .links a {
+        color: white;
+        text-decoration: none;
+        font-size: 12px;
+        margin-top: 5px; /* Added margin-top for spacing */
+    }
+
+.tabs {
+    cursor: pointer;
+    padding: 10px;
+    background: #ddd;
+    display: inline-block;
+    margin-right: 10px;
+    border-radius: 5px;
+    margin-top: 10px; /* Added margin-top for spacing */
+}
+
+    .tabs.active {
+        background: #bbb;
+    }
+
+.tab-content {
+    display: none;
+    margin-top: 20px; /* Added margin-top for spacing */
+}
+
+    .tab-content.active {
+        display: block;
+    }
+
+/* Additional styling for better layout */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+    form input, form button {
+        max-width: 300px;
+        width: 100%;
+    }

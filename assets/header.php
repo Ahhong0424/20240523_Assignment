@@ -37,6 +37,9 @@ if (session_status() == PHP_SESSION_NONE) {
                         <a class="nav-link active" aria-current="page" href="petsInfo.php">Pets Info</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="story.php">Post</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="community.php">Community</a>
                     </li>
                     <li class="nav-item">

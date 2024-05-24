@@ -37,6 +37,9 @@ if (session_status() == PHP_SESSION_NONE) {
                         <a class="nav-link active" aria-current="page" href="adminAdoption.php">Manage Adoption</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="adminDonation.php">Manage Donation</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="adminNews.php">Manage News</a>
                     </li>
                     <?php if(isset($_SESSION['user_last_name'])): ?>

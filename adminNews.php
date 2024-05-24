@@ -89,15 +89,28 @@ function updateNews($conn, $id, $topic, $description, $file_path = null) {
 
 // Function to delete a news record
 function deleteNews($conn, $id) {
-    $sql = "DELETE FROM news WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $id);
+    // Fetch file path associated with the news ID
+    $sqlFilePath = "SELECT image_path FROM news WHERE id = ?";
+    $stmtFilePath = $conn->prepare($sqlFilePath);
+    $stmtFilePath->bind_param("i", $id);
+    $stmtFilePath->execute();
+    $stmtFilePath->bind_result($filePath);
+    $stmtFilePath->fetch();
+    $stmtFilePath->close();
 
-    if ($stmt->execute()) {
-        return "News deleted successfully!";
-    } else {
-        return "Error: " . $sql . "<br>" . $conn->error;
+    // Delete the record from the database
+    $sqlDelete = "DELETE FROM news WHERE id = ?";
+    $stmtDelete = $conn->prepare($sqlDelete);
+    $stmtDelete->bind_param("i", $id);
+    $stmtDelete->execute();
+    $stmtDelete->close();
+
+    // If the file path exists, delete the file from the server
+    if ($filePath && file_exists($filePath)) {
+        unlink($filePath);
     }
+
+    return "News deleted successfully!";
 }
 
 // Handle CRUD operations
@@ -178,62 +191,30 @@ echo '</script>';
 
         <!-- Tab Content -->
         <div class="tab-content">
-            <!-- Add News Tab -->
-            <div id="addNews" class="tab-pane fade show active">
-                <!-- Add News Form -->
-                <h2>Add News</h2>
-                <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label for="topic" class="form-label">Topic</label>
-                        <input type="text" class="form-control" id="topic" name="topic" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control" id="description" name="description" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="file" class="form-label">Upload File</label>
-                        <input type="file" class="form-control" id="file" name="file">
-                    </div>
-                    <button type="submit" name="createNews" class="btn btn-primary">Create News</button>
-                </form>
-            </div>
-
-
-           <!-- Update News Tab -->
-        <div id="updateNews" class="tab-pane fade">
-            <!-- Update News Form -->
-            <h2><?php echo isset($isEdit) ? 'Edit News' : 'Update News'; ?></h2>
-            <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" enctype="multipart/form-data">
-                <div class="mb-3">
-                    <label for="id" class="form-label">ID</label>
-                    <input type="number" class="form-control" id="id" name="id" required value="<?php echo isset($editId) ? $editId : ''; ?>">
-                </div>
-                <div class="mb-3">
-                    <label for="topic" class="form-label">Topic</label>
-                    <input type="text" class="form-control" id="topic" name="topic" required value="<?php echo isset($editTopic) ? $editTopic : ''; ?>">
-                </div>
-                <div class="mb-3">
-                    <label for="description" class="form-label">Description</label>
-                    <textarea class="form-control" id="description" name="description" required><?php echo isset($editDescription) ? $editDescription : ''; ?></textarea>
-                </div>
-                <div class="mb-3">
-                    <label for="file" class="form-label">Upload File</label>
-                    <input type="file" class="form-control" id="file" name="file">
-                    <?php if (isset($editFilePath)): ?>
-                        <p>Current File: <a href="<?php echo htmlspecialchars($editFilePath); ?>" target="_blank"><?php echo htmlspecialchars(basename($editFilePath)); ?></a></p>
-                    <?php endif; ?>
-                </div>
-                <button type="submit" name="updateNews" class="btn btn-primary">Update News</button>
-            </form>
-        </div>
-
-
             <!-- View News Tab -->
-            <div id="viewNews" class="tab-pane fade">
+            <div id="viewNews" class="tab-pane fade show active">
                 <!-- News List -->
                 <h2>View News</h2>
                 <!-- Your View News Content Here -->
+                <?php
+                // Pagination variables
+                $recordsPerPage = 10;
+                $currentPage = isset($_GET['page']) ? $_GET['page'] : 1;
+                $offset = ($currentPage - 1) * $recordsPerPage;
+
+                // Fetch news records with pagination
+                $sql = "SELECT * FROM news LIMIT $offset, $recordsPerPage";
+                $result = $conn->query($sql);
+                $newsList = $result->fetch_all(MYSQLI_ASSOC);
+
+                // Fetch total number of news records
+                $totalRecordsSQL = "SELECT COUNT(*) AS total FROM news";
+                $totalRecordsResult = $conn->query($totalRecordsSQL);
+                $totalRecords = $totalRecordsResult->fetch_assoc()['total'];
+
+                // Calculate total number of pages
+                $totalPages = ceil($totalRecords / $recordsPerPage);
+                ?>
                 <table class="table table-bordered">
                     <thead>
                         <tr>
@@ -273,6 +254,66 @@ echo '</script>';
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+
+                <!-- Pagination links -->
+                <ul class="pagination justify-content-center">
+                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                        <li class="page-item <?php if ($i == $currentPage) echo 'active'; ?>">
+                            <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                        </li>
+                    <?php endfor; ?>
+                </ul>
+            </div>
+
+            <!-- Add News Tab -->
+            <div id="addNews" class="tab-pane fade">
+                <!-- Add News Form -->
+                <h2>Add News</h2>
+                <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="topic" class="form-label">Topic</label>
+                        <input type="text" class="form-control" id="topic" name="topic" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Upload File</label>
+                        <input type="file" class="form-control" id="file" name="file">
+                    </div>
+                    <button type="submit" name="createNews" class="btn btn-primary">Create News</button>
+                </form>
+            </div>
+
+
+
+           <!-- Update News Tab -->
+            <div id="updateNews" class="tab-pane fade">
+                <!-- Update News Form -->
+                <h2><?php echo isset($isEdit) ? 'Edit News' : 'Update News'; ?></h2>
+                <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="id" class="form-label">ID</label>
+                        <input type="number" class="form-control" id="id" name="id" required value="<?php echo isset($editId) ? $editId : ''; ?>">
+                    </div>
+                    <div class="mb-3">
+                        <label for="topic" class="form-label">Topic</label>
+                        <input type="text" class="form-control" id="topic" name="topic" required value="<?php echo isset($editTopic) ? $editTopic : ''; ?>">
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" required><?php echo isset($editDescription) ? $editDescription : ''; ?></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Upload File</label>
+                        <input type="file" class="form-control" id="file" name="file">
+                        <?php if (isset($editFilePath)): ?>
+                            <p>Current File: <a href="<?php echo htmlspecialchars($editFilePath); ?>" target="_blank"><?php echo htmlspecialchars(basename($editFilePath)); ?></a></p>
+                        <?php endif; ?>
+                    </div>
+                    <button type="submit" name="updateNews" class="btn btn-primary">Update News</button>
+                </form>
             </div>
 
         </div>

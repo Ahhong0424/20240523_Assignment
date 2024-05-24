@@ -81,16 +81,30 @@ function updatePet($conn, $id, $pet_category, $pet_name, $pet_title, $pet_descri
 }
 
 function deletePet($conn, $id) {
-    $sql = "DELETE FROM petsinfo WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $id);
+    // Fetch file path associated with the pet ID
+    $sqlFilePath = "SELECT image_path FROM petsinfo WHERE id = ?";
+    $stmtFilePath = $conn->prepare($sqlFilePath);
+    $stmtFilePath->bind_param("i", $id);
+    $stmtFilePath->execute();
+    $stmtFilePath->bind_result($filePath);
+    $stmtFilePath->fetch();
+    $stmtFilePath->close();
 
-    if ($stmt->execute()) {
-        return "Pet information deleted successfully!";
-    } else {
-        return "Error: " . $sql . "<br>" . $conn->error;
+    // Delete the record from the database
+    $sqlDelete = "DELETE FROM petsinfo WHERE id = ?";
+    $stmtDelete = $conn->prepare($sqlDelete);
+    $stmtDelete->bind_param("i", $id);
+    $stmtDelete->execute();
+    $stmtDelete->close();
+
+    // If the file path exists, delete the file from the server
+    if ($filePath && file_exists($filePath)) {
+        unlink($filePath);
     }
+
+    return "Pet information deleted successfully!";
 }
+
 
 $message = '';
 
@@ -122,7 +136,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-$sql = "SELECT * FROM petsinfo";
+// Pagination logic
+$results_per_page = 10;
+
+$sql = "SELECT COUNT(*) AS count FROM petsinfo";
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
+$number_of_results = $row['count'];
+
+$number_of_pages = ceil($number_of_results / $results_per_page);
+
+if (!isset($_GET['page'])) {
+    $page = 1;
+} else {
+    $page = $_GET['page'];
+}
+
+$this_page_first_result = ($page - 1) * $results_per_page;
+
+$sql = "SELECT * FROM petsinfo LIMIT $this_page_first_result, $results_per_page";
 $result = $conn->query($sql);
 $petsList = $result->fetch_all(MYSQLI_ASSOC);
 ?>
@@ -166,7 +198,6 @@ $petsList = $result->fetch_all(MYSQLI_ASSOC);
             <div id="viewPets" class="tab-pane fade show active">
                 <!-- Pets List -->
                 <h2>View Pets</h2>
-                <!-- Your View Pets Content Here -->
                 <table class="table table-bordered">
                     <thead>
                         <tr>
@@ -210,9 +241,20 @@ $petsList = $result->fetch_all(MYSQLI_ASSOC);
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
-
                 </table>
+    
+                <!-- Pagination Links -->
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <?php for ($page = 1; $page <= $number_of_pages; $page++): ?>
+                            <li class="page-item <?php echo ($page == $currentPage) ? 'active' : ''; ?>">
+                                <a class="page-link" href="?page=<?php echo $page; ?>"><?php echo $page; ?></a>
+                            </li>
+                        <?php endfor; ?>
+                    </ul>
+                </nav>
             </div>
+
 
             <!-- Add Pet Tab -->
             <div id="addPet" class="tab-pane fade">

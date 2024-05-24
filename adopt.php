@@ -13,24 +13,18 @@ if (!isset($_POST['pet_id']) || empty($_POST['pet_id'])) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $pet_id = $_POST['pet_id'];
-    $full_name = isset($_POST['full_name']) ? $_POST['full_name'] : '';
-    $home_address = isset($_POST['home_address']) ? $_POST['home_address'] : '';
-    $postcode = isset($_POST['postcode']) ? $_POST['postcode'] : '';
-    $state = isset($_POST['state']) ? $_POST['state'] : '';
-    $phone_number = isset($_POST['phone_number']) ? $_POST['phone_number'] : '';
-    $submission_date = date('Y-m-d');
-
-    // Check if required fields are not empty
-    if ($full_name && $home_address && $postcode && $state && $phone_number) {
-        // Fetch the pet name using the pet ID
-        $sql = "SELECT pet_name FROM petsInfo WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $pet_id);
-        $stmt->execute();
-        $stmt->bind_result($pet_name);
-        $stmt->fetch();
-        $stmt->close();
+    // Validate form fields
+    if (empty($_POST['full_name']) || empty($_POST['home_address']) || empty($_POST['postcode']) || empty($_POST['state']) || empty($_POST['phone_number'])) {
+        $message = 'Error: Please fill in all required fields.';
+    } else {
+        // Process form submission
+        $pet_id = $_POST['pet_id'];
+        $full_name = $_POST['full_name'];
+        $home_address = $_POST['home_address'];
+        $postcode = $_POST['postcode'];
+        $state = $_POST['state'];
+        $phone_number = $_POST['phone_number'];
+        $submission_date = date('Y-m-d');
 
         if ($pet_name) {
             // Insert into petsAdoption
@@ -50,10 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             $message = 'Error: Pet not found.';
         }
-    } else {
-        $message = 'Error: Please fill in all required fields.';
     }
-
     $conn->close();
 }
 
